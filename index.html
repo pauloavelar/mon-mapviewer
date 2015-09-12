@@ -1,44 +1,67 @@
-<html>
+<!DOCTYPE HTML>
+<html ng-app="MonsantoMapViewer">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>Bootstrap + Angular test</title>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script language="javascript" src="js/bootstrap.min.js"></script>
-    <script language="javascript" src="js/angular.min.js"></script>
-
+    <title>Monsanto Map Viewer</title>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/custom.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="css/custom.css">
   </head>
-  <body ng-app="ProofOfConcept">
-    <nav class="navbar navbar-fixed-top">
-      <div class="container">
+  <body ng-controller="LanguageController">
+
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#open-csv-container" aria-expanded="false">
+            <span class="sr-only">{{ string.hintMoreOptions }}</span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">Bootstrap + Angular.js</a>
+          <img class="navbar-brand" alt="Monsanto" src="img/monsanto.png" />
+          <span class="navbar-brand">Map Viewer</span>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <div class="navbar-right">by Paulo Avelar<div>
+        <div class="collapse navbar-collapse" id="open-csv-container">
+          <div class="navbar-form navbar-right">
+            <button type="button" id="open-csv-btn" class="btn btn-default" aria-expanded="false">
+              <span class="glyphicon glyphicon-open-file" aria-hidden="true"></span> {{ string.btnOpenCsvLabel }}&hellip;
+            </button>
+          </div>
         </div>
       </div>
     </nav>
 
-    <div class="jumbotron">
-      <div class="container">
-        <h1>Hello, world!</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called a jumbotron and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a class="btn btn-primary btn-lg" href="#" role="button">Learn more &raquo;</a></p>
-      </div>
-    </div>
+    <div id="open-csv-modal" class="modal fade">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">
+              <span class="glyphicon glyphicon-map-marker"></span> {{ string.openCsvModalTitle }}
+            </h4>
+          </div>
+          <div class="modal-body">
+            <ol>
+              <li>Add file selector and drop area</li>
+              <li>Add an area to be shown when the first line is read (with column names)</li>
+              <li>Add controls to set up which columns are which and filters
+                <ul>
+                  <li>Offer to load the file and offer a dropdown of possible items</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="open-csv-btn-cancel" class="btn btn-default" data-dismiss="modal">{{ string.btnCancel }}</button>
+            <button type="button" class="btn btn-primary">{{ string.btnLoadIntoMap }}</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 
     <div class="container">
       <!-- Example row of columns -->
@@ -67,11 +90,10 @@
       </footer>
     </div> <!-- /container -->
 
-    <ul ng-controller="ItemController">
-      <li ng-repeat="item in items">{{ item.name }}</li>
-    </ul>
+    <!-- AngularJS application -->
     <script src="ng/app.js"></script>
-    <!-- Controllers -->
-    <script src="ng/controller/ItemController.js"></script>
+    <!-- AngularJS Controllers -->
+    <script src="ng/controller/LanguageController.js"></script>
+
   </body>
 </html>

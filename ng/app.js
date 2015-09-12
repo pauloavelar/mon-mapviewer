@@ -1,1 +1,1 @@
-var app = angular.module("ProofOfConcept", []);
+var app = angular.module("MonsantoMapViewer", []);
