@@ -5,11 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Monsanto Map Viewer</title>
+    <script src="js/strings.js"></script>
     <script src="js/jquery.min.js"></script>
+    <script src="js/select2.min.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/file-picker.js"></script>
+    <script src="js/leaflet.js"></script>
+    <script src="js/leaflet.setup.js"></script>
+    <script src="js/papaparse.min.js"></script>
     <script src="js/custom.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/select2.css">
+    <link rel="stylesheet" href="css/select2-bootstrap.css">
+    <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/custom.css">
   </head>
   <body ng-controller="LanguageController">
@@ -45,49 +54,61 @@
             </h4>
           </div>
           <div class="modal-body">
-            <ol>
-              <li>Add file selector and drop area</li>
-              <li>Add an area to be shown when the first line is read (with column names)</li>
-              <li>Add controls to set up which columns are which and filters
-                <ul>
-                  <li>Offer to load the file and offer a dropdown of possible items</li>
-                </ul>
-              </li>
-            </ol>
+            <input type="file" id="hidden-file" />
+            <div id="drop-zone" class="container-fluid panel panel-default no-file">
+              <div class="panel-body">
+                <div class="row">
+                  <div id="icon" class="col-md-1">
+                    <span id="icon-empty" class="glyphicon glyphicon-lg glyphicon-open-file"></span>
+                    <span id="icon-full" class="glyphicon glyphicon-lg glyphicon-ok"></span>
+                    <span id="icon-error" class="glyphicon glyphicon-lg glyphicon-exclamation-sign"></span>
+                  </div>
+                  <div id="info" class="col-md-11 text-center">
+                    <div id="info-empty">
+                      <h3>{{ string.dropHere }}</h3>
+                      <p>{{ string.or }} <strong>{{ string.clickHere }}</strong> {{ string.selectManually }}</p>
+                    </div>
+                    <div id="info-full">
+                      <h4><strong>{{ string.selectedFile }}:</strong>
+                        <span id="file-name"></span> (<span id="file-size"></span>)
+                      </h4>
+                      <div id="open-csv-progress" class="progress">
+                        <div class="progress-bar progress-bar-success
+                             progress-bar-striped" role="progressbar" style="width: 0%"></div>
+                      </div>
+                    </div>
+                    <div id="info-error">
+                      <h3>{{ string.errorNotCsv }}</h2>
+                      <p><strong>{{ string.clickHere }}</strong> {{ string.selectOther }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="error-panel" class="alert alert-danger hidden">
+              <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+              <span class="sr-only">Error:</span>
+              <span id="error-message"></span>.
+            </div>
+            <div id="headers" class="panel panel-default hidden">
+              <div class="panel-heading">
+                <h3 class="panel-title">{{ string.fileColumns }}</h3>
+              </div>
+              <table id="headers-table" class="table">
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" id="open-csv-btn-cancel" class="btn btn-default" data-dismiss="modal">{{ string.btnCancel }}</button>
-            <button type="button" class="btn btn-primary">{{ string.btnLoadIntoMap }}</button>
+            <button type="button" class="btn btn-primary disabled">{{ string.btnLoadIntoMap }}</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <div class="container">
-      <!-- Example row of columns -->
-      <div class="row">
-        <div class="col-md-4">
-          <h2>Heading</h2>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
-        </div>
-        <div class="col-md-4">
-          <h2>Heading</h2>
-          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
-       </div>
-        <div class="col-md-4">
-          <h2>Heading</h2>
-          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
-        </div>
-      </div>
-
-      <hr>
-
-      <footer>
-        <p>&copy; Company 2014</p>
-      </footer>
+    <div id="main">
+      <div id="map"> </div>
     </div> <!-- /container -->
 
     <!-- AngularJS application -->

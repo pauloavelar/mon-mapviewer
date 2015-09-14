@@ -1,0 +1,66 @@
+var distributionCenters = {
+  locations: [
+    { id: '1040',
+      name: 'Paracatu',
+      city: 'Paracatu - MG',
+      lat: '',
+      long: ''
+    },
+    { id: '1076',
+      name: 'Santa Helena de Goiás',
+      city: 'Santa Helena de Goiás - GO',
+      lat: '',
+      long: '' },
+    { id: '1076-CD',
+      name: 'Santa Helena de Goiás (CD)',
+      city: 'Santa Helena de Goiás - GO',
+      lat: '',
+      long: ''
+    },
+    { id: '1171',
+      name: 'Andirá',
+      city: 'Andirá - PR',
+      lat: '',
+      long: '' },
+    { id: '1173',
+      name: 'Itaí',
+      city: 'Itaí - SP',
+      lat: '',
+      long: '' },
+    { id: '1182',
+      name: 'Ipuã',
+      city: 'Ipuã - MG',
+      lat: '',
+      long: '' },
+    { id: '1183',
+      name: 'Uberlândia',
+      city: 'Uberlândia - MG',
+      lat: '',
+      long: '' },
+    { id: '1183-BW',
+      name: 'Uberlândia Best Way',
+      city: 'Uberlândia - MG',
+      lat: '',
+      long: '' },
+    { id: '1183-CD',
+      name: 'Uberlândia (CD)',
+      city: 'Uberlândia - MG',
+      lat: '',
+      long: '' },
+    { id: '1222',
+      name: 'Campo Verde',
+      city: 'Campo Verde - MT',
+      lat: '',
+      long: '' },
+    { id: '6346',
+      name: 'Carazinho',
+      city: 'Carazinho - RS',
+      lat: '',
+      long: '' }
+  ]
+  findById: {}
+};
+var dc = distributionCenters.locations;
+for (var i = 0, len = dc.length; i < len; i++) {
+  distributionCenters.findById[dc[i].name] = dc[i];
+};

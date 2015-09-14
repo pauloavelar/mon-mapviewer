@@ -1,4 +1,38 @@
-body {
-  padding-top: 50px;
-  padding-bottom: 20px;
+/* Body height fixes */
+html, body { height:100%; }
+body { padding-top: 50px; }
+
+/* Leaflet map formatting */
+#main, #map { height:100%; width:100%; }
+
+/* Dropzone general formatting */
+#drop-zone { height: 95px; cursor: pointer; }
+.no-file { border: 2px dashed #ddd; }
+.file-selected { border: 2px solid #9d9; background-color: #e5ffe5; }
+.file-error { border: 2px solid #d99; background-color: #ffe5e5; }
+#drop-zone #icon, #drop-zone #info h3, #drop-zone #info h4 { color: #999; }
+#drop-zone #info h3, #drop-zone #info h4, #drop-zone #info p { margin: 5px 0px !important; }
+#drop-zone #info p { color: #ababab; }
+#hidden-file { display: none; }
+.file-selected .progress { margin: 10px 0 5px 0 !important; }
+
+/* Icon visibility management */
+.no-file #icon-full, .no-file #icon-error,
+.file-selected #icon-empty, .file-selected #icon-error,
+.file-error #icon-empty, .file-error #icon-full { display:none; }
+
+/* Text management */
+.no-file #info-full, .no-file #info-error,
+.file-selected #info-empty, .file-selected #info-error,
+.file-error #info-empty, .file-error #info-full { display:none; }
+
+.glyphicon-lg { font-size: 48px; line-height: 1.25; }
+
+.drop-hovered {
+  border: 2px dashed #99f !important;
+  background-color: #eef;
+}
+
+.table tbody>tr>td.vert-align {
+    vertical-align: middle;
 }
