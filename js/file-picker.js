@@ -1,4 +1,4 @@
-var lang = window.location.hash.substr(1).toLowerCase() || 'en';
+var string = strings[window.location.hash.substr(1).toLowerCase()] || strings['en'];
 var csvContent = [];
 
 var ErrorCode = {
@@ -21,7 +21,7 @@ $(document).ready(function() {
   });
   dropZone.on('drop', function(evt) {
     preventDefault(evt);
-    var f = evt.originalEvent.dataTransfer.files[0];
+    var file = evt.originalEvent.dataTransfer.files[0];
     selectFile(file);
   });
   // sets up button listeners for manual file picker
@@ -48,11 +48,11 @@ function selectFile(file) {
 }
 
 function updateView(file) {
-  $('#open-csv-progress div').css('width', '0%')
-    .removeClass('active').attr('aria-valuenow', '0');
+  $('#open-csv-progress div').css('width', '0%').removeClass('active');
   $('#headers').addClass('hidden');
+  $('#drop-zone').removeClass('drop-hovered');
 
-  if (file && file.type.match('text/csv')) {
+  if (file && file.name.split('.').pop().toLowerCase().match('csv')) {
     // name formatting
     var fileName = file.name;
     if (fileName.length > 40) {
@@ -86,7 +86,8 @@ function updateView(file) {
 }
 
 function readFile(file) {
-  if (!file) return;
+  var ext = file.name.split('.').pop().toLowerCase();
+  if (!file || !ext.match('csv')) return;
 
   // resets the progress bar
   var progress = $('#open-csv-progress div');
@@ -115,34 +116,35 @@ function showHeaders() {
   var currentLine;
   var headers = [];
   $('#headers').removeClass('hidden');
+  $('#headers-table tbody').html('');
   var secondCell = $('<td>')
-    .addClass('col-md-3 vert-align')
+    .addClass('col-md-4 vert-align')
     .append($('<select>')
       .addClass('form-control header-use')
       .append($('<option>')
         .attr('selected', 'selected')
         .attr('value', 'ignore')
-        .append(strings[lang].optIgnore)
+        .append(string.optIgnore)
       )
       .append($('<option>')
         .attr('value', 'filter')
-        .append(strings[lang].optUseAsFilter)
+        .append(string.optUseAsFilter)
       )
       .append($('<option>')
         .attr('value', 'origin')
-        .append(strings[lang].optUseAsOrigin)
+        .append(string.optUseAsOrigin)
       )
       .append($('<option>')
         .attr('value', 'destination')
-        .append(strings[lang].optUseAsDestination)
+        .append(string.optUseAsDestination)
       )
       .append($('<option>')
         .attr('value', 'lineWidth')
-        .append(strings[lang].optUseAsLineWidth)
+        .append(string.optUseAsLineWidth)
       )
       .append($('<option>')
         .attr('value', 'markerText')
-        .append(strings[lang].optUseAsMarkerText)
+        .append(string.optUseAsMarkerText)
       )
     );
 
@@ -153,7 +155,7 @@ function showHeaders() {
         .append($('<tr>')
           .val(header)
           .append($('<td>')
-            .addClass('col-md-3 vert-align header-name')
+            .addClass('col-md-2 vert-align header-name')
             .append('<strong>' + header + '</strong>')
           )
           .append(clone)
@@ -178,7 +180,7 @@ function manageAction(event) {
     case 'filter':
       var items = getHeaderItems(line.val());
       if (items.length == 0) {
-        showLineError(line, strings[lang].errorNoItems);
+        showLineError(line, string.errorNoItems);
       } else {
         var filterCell = line.find('td.header-filter')
           .append($('<select class="header-filter">')
@@ -186,12 +188,20 @@ function manageAction(event) {
             .css('width', '100%')
             .attr('multiple', 'multiple')
           );
+        var itemDisplay;
         items.forEach(function(item) {
+          if (isNaN(item))
+            itemDisplay = item;
+          else
+            itemDisplay = $.number(item, 2);
           filterCell.find('select')
-            .append('<option>' + item + '</option');
+            .append($('<option>')
+              .val(item)
+              .append(itemDisplay)
+            );
         });
         line.find('.header-filter select').select2({
-          placeholder: strings[lang].showOnly
+          placeholder: string.showOnly
         });
       }
       break;
@@ -208,9 +218,11 @@ function getHeaderItems(headerName) {
       break;
     }
   }
+  var item;
   if (headerIndex != -1) {
     for (i = 1, len = csvContent.length; i < len; i++) {
-      if (headerItems.indexOf(csvContent[i][headerIndex]) == -1) {
+      item = csvContent[i][headerIndex];
+      if (item && item.length > 0 && headerItems.indexOf(item) == -1) {
         headerItems.push(csvContent[i][headerIndex]);
       }
     }
@@ -219,7 +231,16 @@ function getHeaderItems(headerName) {
   return headerItems;
 }
 
-function createMap(headers) {
+function clickLoadMap() {
+  var mapSetup = {
+    filters: [],
+    origin: getOrigin(),
+    destination: getDestination()
+  }
+  createMap()
+}
+
+function createMap(mapSetup) {
   alert(worked);
 }
 
@@ -228,7 +249,7 @@ function showLineError(line, message) {
     .append($('<span>')
       .addClass('glyphicon glyphicon-exclamation-sign')
     )
-    .append(message + '.');
+    .append(' ' + message + '.');
 }
 
 function showError(errorCode) {
@@ -243,13 +264,13 @@ function showError(errorCode) {
 
   switch (errorCode) {
     case ErrorCode.PARSING_ERROR:
-      errorMessage.html(strings[lang].parsingError);
+      errorMessage.html(string.parsingError);
       break;
     case ErrorCode.FILE_TOO_BIG:
-      errorMessage.html(strings[lang].fileTooBig);
+      errorMessage.html(string.fileTooBig);
       break;
     case ErrorCode.TOO_MANY_LINES:
-      errorMessage.html(strings[lang].tooManyLines);
+      errorMessage.html(string.tooManyLines);
       break;
   }
 }

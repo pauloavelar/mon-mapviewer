@@ -1,12 +1,14 @@
 <!DOCTYPE HTML>
 <html ng-app="MonsantoMapViewer">
-  <head>
+  <head ng-controller="LanguageController">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Monsanto Map Viewer</title>
+    <title>{{ string.appName }}</title>
+    <link rel="shortcut icon" href="favicon.ico" />
     <script src="js/strings.js"></script>
     <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.number.min.js"></script>
     <script src="js/select2.min.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
@@ -33,7 +35,7 @@
             <span class="icon-bar"></span>
           </button>
           <img class="navbar-brand" alt="Monsanto" src="img/monsanto.png" />
-          <span class="navbar-brand">Map Viewer</span>
+          <span class="navbar-brand">{{ string.appName }}</span>
         </div>
         <div class="collapse navbar-collapse" id="open-csv-container">
           <div class="navbar-form navbar-right">

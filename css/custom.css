@@ -36,3 +36,7 @@ body { padding-top: 50px; }
 .table tbody>tr>td.vert-align {
     vertical-align: middle;
 }
+
+#headers .panel-heading {
+  background-color: #ececec !important;
+}

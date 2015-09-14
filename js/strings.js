@@ -1,5 +1,6 @@
 var strings = {
   br: {
+    appName: 'Map Viewer',
     or: 'ou',
     selectManually: 'para selecioná-lo em seu computador',
     dropHere: 'Solte um arquivo CSV aqui para carregá-lo',
@@ -28,6 +29,7 @@ var strings = {
     errorNoItems: 'Não há dados neste campo'
   },
   en: {
+    appName: 'Map Viewer',
     or: 'or',
     selectManually: 'to select it in your computer',
     dropHere: 'Drop a CSV file here to load it',
