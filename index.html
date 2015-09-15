@@ -14,30 +14,24 @@
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/custom.css">
 
+    <!-- Javascript scripts -->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery.number.min.js"></script>
+    <script type="text/javascript" src="js/select2.min.js"></script>
+    <script type="text/javascript" src="js/angular.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/leaflet.js"></script>
+    <script type="text/javascript" src="js/papaparse.min.js"></script>
+
     <!-- Javascript modules -->
     <script type="text/javascript" src="js/modules/Strings.js"></script>
     <script type="text/javascript" src="js/modules/View.js"></script>
-
-    <!-- Javascript scripts -->
-    <script src="js/strings.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/jquery.number.min.js"></script>
-    <script src="js/select2.min.js"></script>
-    <script src="js/angular.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/file-picker.js"></script>
-    <script src="js/leaflet.js"></script>
-    <script src="js/leaflet.setup.js"></script>
-    <script src="js/papaparse.min.js"></script>
-    <script src="js/custom.js"></script>
-
-    <!-- Startup script -->
-    <script type="text/javascript">
-      $(document).ready(View.init);
-    </script>
+    <script type="text/javascript" src="js/modules/HeaderRowFactory.js"></script>
+    <script type="text/javascript" src="js/modules/FileLoader.js"></script>
+    <script type="text/javascript" src="js/modules/MapManager.js"></script>
 
   </head>
-  <body ng-controller="LanguageController">
+  <body onload="View.init()" ng-controller="LanguageController">
 
     <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
@@ -126,7 +120,7 @@
 
     <div id="main">
       <div id="map"> </div>
-    </div> <!-- /container -->
+    </div>
 
     <!-- AngularJS application -->
     <script src="ng/app.js"></script>

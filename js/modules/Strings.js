@@ -1,8 +1,4 @@
-var Strings(function() {
-
-  // loading language preference, default: en
-  var hash = window.location.hash.substr(1).toLowerCase();
-  var language = (strings[hash] ? hash : 'en');
+var Strings = (function() {
 
   // strings repository
   var strings = {
@@ -66,12 +62,16 @@ var Strings(function() {
     }
   };
 
+  // loading language preference, default: en (english)
+  var mHash = window.location.hash.substr(1).toLowerCase();
+  var mLanguage = (strings[mHash] ? mHash : 'en');
+
   var fnGet = function(stringId) {
-    return strings[language][stringId];
+    return strings[mLanguage][stringId];
   };
 
   var fnForAngular = function() {
-    return strings[language];
+    return strings[mLanguage];
   };
 
   return {

@@ -21,8 +21,11 @@ var View = (function() {
     },
     headers: {
       panel: '#headers',
-      table: '#headers-table',
-      usage: 'select.header-use'
+      table: '#headers-table tbody',
+      rowName: '.header-name',
+      usage: 'select.header-use',
+      action: '.header-action',
+      filter: 'select.header-filter'
     },
     errors: {
       panel: '#error-panel',
@@ -42,25 +45,38 @@ var View = (function() {
     // registering DOM listeners for static elements
     $(selectors.navBar.btnOpenFile).on('click', fnOpenFileModal);
     $(selectors.fileModal.dropzone)
-      .on('dragover dragleave drop', fnUpdateDropzone)
-      .on('drop', FileLoader.handleFileDrop);
-      .on('click', $(selectors.fileModal.filePicker).click);
-    $(selectors.fileModal.filePicker).on('change', fnUpdateDropzone);
+      .on('dragover dragleave drop', fnHandleDropzone)
+      .on('drop', FileLoader.handleFileDrop)
+      .on('click', fnClickDropzone);
+    $(selectors.fileModal.filePicker).on('change', fnChangeFile);
     // registering DOM listeners for dynamic elements
     $(selectors.headers.table)
       .on('change', selectors.headers.usage, fnManageAction);
+    // showing the modal
+    fnOpenFileModal({firstTime: true});
     // updates the flag to avoid double binding
     hasInitBeenCalled = true;
   };
 
+  var fnChangeFile = function($event) {
+    var file = $event.target.files[0];
+    fnUpdateDropzone('file', file);
+    FileLoader.select(file);
+  };
+
+  var fnClickDropzone = function() {
+    $(selectors.fileModal.filePicker).click();
+  };
+
   // handles drag and drop events in dropzone
   var fnHandleDropzone = function($event) {
-    $event.stopPropagation();
-    $event.preventDefault();
-
-    var file = $event.dataTransfer.files[0];
-    updateDropzone($event.type, file);
-    FileLoader.selectFile(file);
+    var file;
+    if ($event.type == 'drop') {
+      file = $event.originalEvent.dataTransfer.files[0];
+      FileLoader.select(file);
+    }
+    fnUpdateDropzone($event.type, file);
+    return false; // calls stopPropagation() and preventDefault()
   };
 
   // updates the dropzone with proper formatting
@@ -76,42 +92,39 @@ var View = (function() {
       case 'drop': // no break intended
         $dropzone.removeClass('drop-hovered');
       case 'file':
-        $(selectors.fileModal.headersPanel).addClass('hidden');
-        updateProgress(0, false);
+        fnClearHeaders();
+        fnUpdateProgress(0, false);
         if (!file) {  // no file selected
           $dropzone.removeClass('file-selected file-error').addClass('no-file');
         } else if (!FileLoader.isValid(file)) {  // invalid file selected
           $dropzone.removeClass('no-file file-selected').addClass('file-error');
         } else {  // valid file, load details
           var details = FileLoader.getDetails(file);
-          $(selector.fileModal.fileName).html(details.name);
-          $(selector.fileModal.fileSize).html(details.formattedSize);
+          $(selectors.fileModal.fileName).html(details.name);
+          $(selectors.fileModal.fileSize).html(details.size);
           $dropzone.removeClass('no-file file-error').addClass('file-selected');
-          if (details.size > 5000000)
-            fnShowError(ErrorCode.FILE_TOO_BIG);
-          else
-            fnShowError(ErrorCode.NO_ERROR);
         }
         break;
     }
   };
 
+  // updates file loader progress bar
   var fnUpdateProgress = function(percent, isRunning) {
     var $progressBar = $(selectors.fileModal.progressBar);
+
     if (isNaN(percent)) percent = 0;
     if (percent > 100) percent = 100;
 
+    $progressBar.css('width', percent + '%');
     if (isRunning)
-      $progressBar.css('width', percent + '%').addClass('active');
+      $progressBar.addClass('active');
     else
-      $progressBar.css('width', '0%').removeClass('active');
+      $progressBar.removeClass('active');
   };
 
   // Opens the file opener modal, no need for a closing function
   // @param {firstTime: true/false} - makes the modal [un]closeable
   var fnOpenFileModal = function(options) {
-    if (!hasInitBeenCalled) init();
-
     var $fileModal = $(selectors.fileModal.main);
     var $modalData = $fileModal.data('bs.modal');
 
@@ -141,12 +154,71 @@ var View = (function() {
     $(selectors.errors.message).html(message);
   }
 
+  var fnClearHeaders = function() {
+    $(selectors.headers.panel).addClass('hidden');
+    $(selectors.headers.table).html('');
+  };
+
+  var fnAddHeaderRow = function(headerName) {
+    var $table = $(selectors.headers.table);
+    var $row = HeaderRowFactory.create();
+
+    $(selectors.headers.panel).removeClass('hidden');
+
+    $row.find(selectors.headers.rowName).html(headerName);
+    $row.val(headerName);
+    $row.find(selectors.headers.usage).select2({
+      minimumResultsForSearch: Infinity
+    });
+    $table.append($row);
+  };
+
+  // gets header usage and displays additional actions
+  var fnHandleHeaderAction = function($event) {
+    // edits td.header-filter accordingly
+    var $row = $($event.target).closest('tr');
+    $row.find('td.header-action').html('');
+
+    switch($(event.target).val()) {
+      case 'filter':
+        var items = getHeaderItems(line.val());
+        if (items.length == 0) {
+          showLineError(line, string.errorNoItems);
+        } else {
+          var filterCell = line.find('td.header-action')
+            .append($('<select class="header-filter">')
+              .addClass('form-control')
+              .css('width', '100%')
+              .attr('multiple', 'multiple')
+            );
+          var itemDisplay;
+          items.forEach(function(item) {
+            if (isNaN(item))
+              itemDisplay = item;
+            else
+              itemDisplay = $.number(item, 2);
+            filterCell.find('select')
+              .append($('<option>')
+                .val(item)
+                .append(itemDisplay)
+              );
+          });
+          line.find('.header-filter select').select2({
+            placeholder: string.showOnly
+          });
+        }
+        break;
+    }
+  }
+
   /* --- Publicly visible module props --- */
   return {
     init: fnInit,
     openFileModal: fnOpenFileModal,
     showError: fnShowError,
-    updateProgress: fnUpdateProgress
+    updateProgress: fnUpdateProgress,
+    clearHeaders: fnClearHeaders,
+    addHeaderRow: fnAddHeaderRow
   };
 
 })();

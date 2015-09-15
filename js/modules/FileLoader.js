@@ -1,15 +1,15 @@
 var FileLoader = (function() {
 
+  /* --- Enums --- */
+  var ErrorCode = Object.freeze({
+    NO_ERROR: 100, FILE_TOO_BIG: 101, TOO_MANY_LINES: 102, PARSING_ERROR: 103
+  });
+
   /* --- Private properties --- */
 
   // file reference and content
-  var selectedFile;
-  var csv = [];
-
-  // error codes for message display
-  var ErrorCode = {
-    NO_ERROR: 100, FILE_TOO_BIG: 101, TOO_MANY_LINES: 102, PARSING_ERROR: 103
-  };
+  var mSelectedFile;
+  var mCsv = [];
 
   /* --- Publicly visible functions --- */
 
@@ -20,15 +20,25 @@ var FileLoader = (function() {
 
   // sets selectedFile to the file reference
   var fnSelect = function(file) {
-    selectedFile = file;
+    mSelectedFile = file;
+    fnRead(mSelectedFile);
+  };
+
+  var fnGetFile = function() {
+    return mSelectedFile;
   };
 
   // gets details of a given file (name and formatted size)
   var fnGetDetails = function(file) {
     if (!fnIsValid(file)) return;
 
-    var size = file.size;
     var units = [ 'B', 'KB', 'MB' ];
+    var name = file.name;
+    var size = file.size;
+
+    if (name.length > 43) {
+      name = name.substr(0, 20) + '...' + name.substr(name.length - 20, 20);
+    }
     for (i = 0, len = units.length; i < len; i++) {
       if (size < 1024) {
         size = parseInt(size) + units[i];
@@ -37,7 +47,7 @@ var FileLoader = (function() {
       size /= 1024;
     }
 
-    return { name: file.name, size: file.size, formattedSize: size };
+    return { name: name, size: size };
   };
 
   var fnShowError = function(errorCode) {
@@ -57,6 +67,39 @@ var FileLoader = (function() {
     }
   };
 
+  var fnRead = function(file) {
+    csv = [];
+    // checks if the file is a valid CSV
+    if (!fnIsValid(file)) return;
+
+    // reading headers for filtering
+    Papa.parse(file, {
+      encoding: 'CP1250', // default MS Excel encoding
+      step: function(results, parser) {
+        if (results.errors.length > 0) {
+          fnShowError(ErrorCode.PARSING_ERROR);
+          parser.abort();
+          return;
+        }
+        csv.push(results.data[0]);
+        var percent = Math.round(results.meta.cursor / file.size * 100);
+        View.updateProgress(percent, true);
+      },
+      complete: function(results) {
+        View.updateProgress(100, false);
+        fnLoadHeaders();
+      }
+    });
+  };
+
+  var fnLoadHeaders = function() {
+    View.clearHeaders();
+    csv[0].forEach(function(header) {
+      if (header.length > 0)
+        View.addHeaderRow(header);
+    });
+  };
+
   return {
     isValid: fnIsValid,
     getDetails: fnGetDetails,
@@ -65,135 +108,7 @@ var FileLoader = (function() {
 
 })();
 
-var fnSelectFile = function(file) {
-  csvContent = [];
-  selectedFile = file;
-  updateView(file);
-  readFile(file);
-}
 
-function readFile(file) {
-  var ext = file.name.split('.').pop().toLowerCase();
-  if (!file || !ext.match('csv')) return;
-
-  // resets the progress bar
-  var progress = $('#open-csv-progress div');
-  progress.css('width', '0%').addClass('active');
-
-  // reading headers for filtering
-  Papa.parse(file, {
-    encoding: 'CP1250',
-    step: function(results, parser) {
-      if (results.errors.length > 0) {
-        showError(ErrorCode.PARSING_ERROR);
-        parser.abort();
-      }
-      csvContent.push(results.data[0]);
-      var percent = Math.round(results.meta.cursor / file.size * 100);
-      progress.css('width', percent + '%');
-    },
-    complete: function(results) {
-      progress.removeClass('active');
-      showHeaders();
-    }
-  });
-}
-
-function showHeaders() {
-  var currentLine;
-  var headers = [];
-  $('#headers').removeClass('hidden');
-  $('#headers-table tbody').html('');
-  var secondCell = $('<td>')
-    .addClass('col-md-4 vert-align')
-    .append($('<select>')
-      .addClass('form-control header-use')
-      .append($('<option>')
-        .attr('selected', 'selected')
-        .attr('value', 'ignore')
-        .append(string.optIgnore)
-      )
-      .append($('<option>')
-        .attr('value', 'filter')
-        .append(string.optUseAsFilter)
-      )
-      .append($('<option>')
-        .attr('value', 'origin')
-        .append(string.optUseAsOrigin)
-      )
-      .append($('<option>')
-        .attr('value', 'destination')
-        .append(string.optUseAsDestination)
-      )
-      .append($('<option>')
-        .attr('value', 'lineWidth')
-        .append(string.optUseAsLineWidth)
-      )
-      .append($('<option>')
-        .attr('value', 'markerText')
-        .append(string.optUseAsMarkerText)
-      )
-    );
-
-  csvContent[0].forEach(function(header) {
-    if (header.length > 0) {
-      var clone = secondCell.clone();
-      currentLine = $('#headers-table').find('tbody:last-child')
-        .append($('<tr>')
-          .val(header)
-          .append($('<td>')
-            .addClass('col-md-2 vert-align header-name')
-            .append('<strong>' + header + '</strong>')
-          )
-          .append(clone)
-          .append($('<td>')
-            .addClass('col-md-6 vert-align header-filter')
-          )
-        );
-      clone.find('select.header-use').select2({
-        minimumResultsForSearch: Infinity
-      });
-    }
-  });
-}
-
-function fnManageAction(event) {
-  // gets value from select.header-use in each line
-  // edits td.header-filter accordingly
-  var line = $(event.target).closest('tr');
-  line.find('td.header-filter').html('');
-
-  switch($(event.target).val()) {
-    case 'filter':
-      var items = getHeaderItems(line.val());
-      if (items.length == 0) {
-        showLineError(line, string.errorNoItems);
-      } else {
-        var filterCell = line.find('td.header-filter')
-          .append($('<select class="header-filter">')
-            .addClass('form-control')
-            .css('width', '100%')
-            .attr('multiple', 'multiple')
-          );
-        var itemDisplay;
-        items.forEach(function(item) {
-          if (isNaN(item))
-            itemDisplay = item;
-          else
-            itemDisplay = $.number(item, 2);
-          filterCell.find('select')
-            .append($('<option>')
-              .val(item)
-              .append(itemDisplay)
-            );
-        });
-        line.find('.header-filter select').select2({
-          placeholder: string.showOnly
-        });
-      }
-      break;
-  }
-}
 
 function getHeaderItems(headerName) {
   if (!csvContent[0]) return [];
@@ -223,12 +138,7 @@ function clickLoadMap() {
     filters: [],
     origin: getOrigin(),
     destination: getDestination()
-  }
-  createMap()
-}
-
-function createMap(mapSetup) {
-  alert(worked);
+  };
 }
 
 function showLineError(line, message) {
