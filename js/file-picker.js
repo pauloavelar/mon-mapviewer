@@ -1,89 +1,61 @@
-var string = strings[window.location.hash.substr(1).toLowerCase()] || strings['en'];
-var csvContent = [];
+var FileLoader = (function() {
 
-var ErrorCode = {
-  NO_ERROR: 100,
-  FILE_TOO_BIG: 101,
-  TOO_MANY_LINES: 102,
-  PARSING_ERROR: 103
-};
+  /* --- Private properties --- */
 
-$(document).ready(function() {
-  var dropZone = $('#drop-zone');
-  // sets up drag and drop listeners
-  dropZone.on('dragover', function(evt) {
-    preventDefault(evt);
-    dropZone.addClass('drop-hovered');
-  });
-  dropZone.on('dragleave', function(evt) {
-    preventDefault(evt);
-    dropZone.removeClass('drop-hovered');
-  });
-  dropZone.on('drop', function(evt) {
-    preventDefault(evt);
-    var file = evt.originalEvent.dataTransfer.files[0];
-    selectFile(file);
-  });
-  // sets up button listeners for manual file picker
-  $('#drop-zone').on('click', function() {
-    $('#hidden-file').click();
-  });
-  $('#hidden-file').on('change', function(evt) {
-    var file = evt.target.files[0];
-    selectFile(file);
-  });
-  $('#headers-table').on('change', '.header-use', manageAction);
-});
+  // file reference and content
+  var selectedFile;
+  var csv = [];
 
-function preventDefault(evt) {
-  evt.stopPropagation();
-  evt.preventDefault();
-}
+  // error codes for message display
+  var ErrorCode = {
+    NO_ERROR: 100, FILE_TOO_BIG: 101, TOO_MANY_LINES: 102, PARSING_ERROR: 103
+  };
 
-function selectFile(file) {
-  csvContent = [];
-  selectedFile = file;
-  updateView(file);
-  readFile(file);
-}
+  /* --- Publicly visible functions --- */
 
-function updateView(file) {
-  $('#open-csv-progress div').css('width', '0%').removeClass('active');
-  $('#headers').addClass('hidden');
-  $('#drop-zone').removeClass('drop-hovered');
+  // checks if a file is valid
+  var fnIsValid = function(file) {
+    return file && file.name.split('.').pop().toLowerCase().match('csv');
+  };
 
-  if (file && file.name.split('.').pop().toLowerCase().match('csv')) {
-    // name formatting
-    var fileName = file.name;
-    if (fileName.length > 40) {
-      fileName = fileName.substr(0, 20) + '...' +
-                 fileName.substr(fileName.length - 17, fileName.length);
-    }
-    // size formatting
-    var fileSize = file.size;
+  // sets selectedFile to the file reference
+  var fnSelect = function(file) {
+    selectedFile = file;
+  };
+
+  // gets details of a given file (name and formatted size)
+  var fnGetDetails = function(file) {
+    if (!fnIsValid(file)) return;
+
+    var size = file.size;
     var units = [ 'B', 'KB', 'MB' ];
     for (i = 0, len = units.length; i < len; i++) {
-      if (fileSize < 1024) {
-        fileSize = parseInt(fileSize) + units[i];
+      if (size < 1024) {
+        size = parseInt(size) + units[i];
         break;
       }
-      fileSize /= 1024;
+      size /= 1024;
     }
-    // adding to view
-    $("#file-name").html(fileName);
-    $("#file-size").html(fileSize);
-    $('#drop-zone').removeClass('no-file file-error').addClass('file-selected');
 
-    if (file.size > 5000000)
-      showError(ErrorCode.FILE_TOO_BIG);
-    else
-      showError(ErrorCode.NO_ERROR);
-  } else if (file) {
-    $('#drop-zone').removeClass('no-file file-selected').addClass('file-error');
-  } else {
-    $('#drop-zone').removeClass('file-selected file-error').addClass('no-file');
+    return { name: file.name, size: file.size, formattedSize: size };
+  };
+
+  return {
+    isValid: fnIsValid,
+    getDetails: fnGetDetails,
+    select: fnSelect
+  };
+
+})();
+
+  var fnSelectFile = function(file) {
+    csvContent = [];
+    selectedFile = file;
+    updateView(file);
+    readFile(file);
   }
-}
+
+
 
 function readFile(file) {
   var ext = file.name.split('.').pop().toLowerCase();
@@ -170,7 +142,7 @@ function showHeaders() {
   });
 }
 
-function manageAction(event) {
+function fnManageAction(event) {
   // gets value from select.header-use in each line
   // edits td.header-filter accordingly
   var line = $(event.target).closest('tr');

@@ -6,13 +6,13 @@ body { padding-top: 50px; }
 #main, #map { height:100%; width:100%; }
 
 /* Dropzone general formatting */
-#drop-zone { height: 95px; cursor: pointer; }
+#dropzone { height: 95px; cursor: pointer; }
 .no-file { border: 2px dashed #ddd; }
 .file-selected { border: 2px solid #9d9; background-color: #e5ffe5; }
 .file-error { border: 2px solid #d99; background-color: #ffe5e5; }
-#drop-zone #icon, #drop-zone #info h3, #drop-zone #info h4 { color: #999; }
-#drop-zone #info h3, #drop-zone #info h4, #drop-zone #info p { margin: 5px 0px !important; }
-#drop-zone #info p { color: #ababab; }
+#dropzone #icon, #dropzone #info h3, #dropzone #info h4 { color: #999; }
+#dropzone #info h3, #dropzone #info h4, #dropzone #info p { margin: 5px 0px !important; }
+#dropzone #info p { color: #ababab; }
 #hidden-file { display: none; }
 .file-selected .progress { margin: 10px 0 5px 0 !important; }
 
