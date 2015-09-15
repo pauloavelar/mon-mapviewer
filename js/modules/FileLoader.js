@@ -39,7 +39,7 @@ var FileLoader = (function() {
     if (name.length > 43) {
       name = name.substr(0, 20) + '...' + name.substr(name.length - 20, 20);
     }
-    for (i = 0, len = units.length; i < len; i++) {
+    for (var i = 0, len = units.length; i < len; i++) {
       if (size < 1024) {
         size = parseInt(size) + units[i];
         break;
@@ -53,22 +53,21 @@ var FileLoader = (function() {
   var fnShowError = function(errorCode) {
     switch (errorCode) {
       case ErrorCode.PARSING_ERROR:
-        View.showError(Strings.get(parsingError));
+        View.showError(Strings.parsingError);
         break;
       case ErrorCode.FILE_TOO_BIG:
-        View.showError(Strings.get(fileTooBig));
+        View.showError(Strings.fileTooBig);
         break;
       case ErrorCode.TOO_MANY_LINES:
-        View.showError(Strings.get(tooManyLines));
+        View.showError(Strings.tooManyLines);
         break;
       default:
         View.showError();
-        break;
     }
   };
 
   var fnRead = function(file) {
-    csv = [];
+    mCsv = [];
     // checks if the file is a valid CSV
     if (!fnIsValid(file)) return;
 
@@ -81,7 +80,7 @@ var FileLoader = (function() {
           parser.abort();
           return;
         }
-        csv.push(results.data[0]);
+        mCsv.push(results.data[0]);
         var percent = Math.round(results.meta.cursor / file.size * 100);
         View.updateProgress(percent, true);
       },
@@ -94,44 +93,37 @@ var FileLoader = (function() {
 
   var fnLoadHeaders = function() {
     View.clearHeaders();
-    csv[0].forEach(function(header) {
+    mCsv[0].forEach(function(header) {
       if (header.length > 0)
         View.addHeaderRow(header);
     });
   };
 
+  var fnGetHeaderItems = function(headerName) {
+    if (!Array.isArray(mCsv) || !mCsv[0]) return [];
+
+    var index = mCsv[0].indexOf(headerName);
+    var item, items = [];
+
+    if (index != -1) {
+      for (var i = 1, len = mCsv.length; i < len; i++) {
+        item = mCsv[i][index];
+        if (item && item.length > 0 && items.indexOf(item) == -1) {
+          items.push(item); // pushes only unique and defined items
+        }
+      }
+    }
+    return items.sort();
+  };
+
   return {
     isValid: fnIsValid,
     getDetails: fnGetDetails,
-    select: fnSelect
+    select: fnSelect,
+    getHeaderItems: fnGetHeaderItems
   };
 
 })();
-
-
-
-function getHeaderItems(headerName) {
-  if (!csvContent[0]) return [];
-  var headerIndex = -1;
-  var headerItems = [];
-  for (i = 0, len = csvContent[0].length; i < len; i++) {
-    if (csvContent[0][i] == headerName) {
-      headerIndex = i;
-      break;
-    }
-  }
-  var item;
-  if (headerIndex != -1) {
-    for (i = 1, len = csvContent.length; i < len; i++) {
-      item = csvContent[i][headerIndex];
-      if (item && item.length > 0 && headerItems.indexOf(item) == -1) {
-        headerItems.push(csvContent[i][headerIndex]);
-      }
-    }
-  }
-  headerItems.sort();
-  return headerItems;
-}
 
 function clickLoadMap() {
   var mapSetup = {
@@ -139,12 +131,4 @@ function clickLoadMap() {
     origin: getOrigin(),
     destination: getDestination()
   };
-}
-
-function showLineError(line, message) {
-  line.find('.header-filter')
-    .append($('<span>')
-      .addClass('glyphicon glyphicon-exclamation-sign')
-    )
-    .append(' ' + message + '.');
 }

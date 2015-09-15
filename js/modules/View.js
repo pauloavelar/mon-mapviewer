@@ -5,39 +5,16 @@ var View = (function() {
   // View init state control flag
   var hasInitBeenCalled = false;
 
-  // jQuery selectors single reference
-  var selectors = {
-    navBar: {
-      btnOpenFile: '#btn-open-file'
-    },
-    fileModal: {
-      main: '#file-modal',
-      dropzone: '#dropzone',
-      fileName: '#file-name',
-      fileSize: '#file-size',
-      filePicker: '#hidden-file',
-      progressBar: '#file-progress div',
-      btnCancel: '#btn-modal-cancel'
-    },
-    headers: {
-      panel: '#headers',
-      table: '#headers-table tbody',
-      rowName: '.header-name',
-      usage: 'select.header-use',
-      action: '.header-action',
-      filter: 'select.header-filter'
-    },
-    errors: {
-      panel: '#error-panel',
-      message: '#error-message'
-    }
-  };
+  // jQuery selectors
+  var selectors;
 
   /* --- Module functions --- */
 
   // Must be called whenever the page is created
   var fnInit = function() {
     if (hasInitBeenCalled) return;
+    // creating selectors reference
+    selectors = Utils.selectors;
     // creating the backdrop modal (by default an uncloseable one)
     $(selectors.fileModal.main).modal({
       show:false, backdrop: false, keyboard: false
@@ -51,7 +28,7 @@ var View = (function() {
     $(selectors.fileModal.filePicker).on('change', fnChangeFile);
     // registering DOM listeners for dynamic elements
     $(selectors.headers.table)
-      .on('change', selectors.headers.usage, fnManageAction);
+      .on('change', selectors.headers.usage, fnHandleHeaderUsage);
     // showing the modal
     fnOpenFileModal({firstTime: true});
     // updates the flag to avoid double binding
@@ -161,54 +138,35 @@ var View = (function() {
 
   var fnAddHeaderRow = function(headerName) {
     var $table = $(selectors.headers.table);
-    var $row = HeaderRowFactory.create();
-
+    var $row = HeaderRowFactory.create(headerName);
     $(selectors.headers.panel).removeClass('hidden');
-
-    $row.find(selectors.headers.rowName).html(headerName);
-    $row.val(headerName);
-    $row.find(selectors.headers.usage).select2({
-      minimumResultsForSearch: Infinity
-    });
     $table.append($row);
   };
 
   // gets header usage and displays additional actions
-  var fnHandleHeaderAction = function($event) {
-    // edits td.header-filter accordingly
+  var fnHandleHeaderUsage = function($event) {
     var $row = $($event.target).closest('tr');
-    $row.find('td.header-action').html('');
+    var $action = $row.find(selectors.headers.action);
 
-    switch($(event.target).val()) {
+    switch($event.val) { // holds the selected option value
+      case 'ignore':
+        $action.html('');
+        break;
       case 'filter':
-        var items = getHeaderItems(line.val());
+        var items = FileLoader.getHeaderItems($row.val());
         if (items.length == 0) {
-          showLineError(line, string.errorNoItems);
-        } else {
-          var filterCell = line.find('td.header-action')
-            .append($('<select class="header-filter">')
-              .addClass('form-control')
-              .css('width', '100%')
-              .attr('multiple', 'multiple')
-            );
-          var itemDisplay;
-          items.forEach(function(item) {
-            if (isNaN(item))
-              itemDisplay = item;
-            else
-              itemDisplay = $.number(item, 2);
-            filterCell.find('select')
-              .append($('<option>')
-                .val(item)
-                .append(itemDisplay)
-              );
-          });
-          line.find('.header-filter select').select2({
-            placeholder: string.showOnly
-          });
+          fnShowRowError($row, Strings.errorNoItems);
+          return;
         }
+        $action.html(RowFilterFactory.create(items));
         break;
     }
+  };
+
+  var fnShowRowError = function($row, message) {
+    $row.find(selectors.headers.filter)
+      .append($('<span>').addClass('glyphicon glyphicon-exclamation-sign'))
+      .append(' ' + message + '.');
   }
 
   /* --- Publicly visible module props --- */

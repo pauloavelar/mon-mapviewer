@@ -66,17 +66,6 @@ var Strings = (function() {
   var mHash = window.location.hash.substr(1).toLowerCase();
   var mLanguage = (strings[mHash] ? mHash : 'en');
 
-  var fnGet = function(stringId) {
-    return strings[mLanguage][stringId];
-  };
-
-  var fnForAngular = function() {
-    return strings[mLanguage];
-  };
-
-  return {
-    get: fnGet,
-    forAngular: fnForAngular
-  };
+  return strings[mLanguage];
 
 })();
