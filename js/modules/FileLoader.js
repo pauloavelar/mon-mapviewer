@@ -40,6 +40,23 @@ var FileLoader = (function() {
     return { name: file.name, size: file.size, formattedSize: size };
   };
 
+  var fnShowError = function(errorCode) {
+    switch (errorCode) {
+      case ErrorCode.PARSING_ERROR:
+        View.showError(Strings.get(parsingError));
+        break;
+      case ErrorCode.FILE_TOO_BIG:
+        View.showError(Strings.get(fileTooBig));
+        break;
+      case ErrorCode.TOO_MANY_LINES:
+        View.showError(Strings.get(tooManyLines));
+        break;
+      default:
+        View.showError();
+        break;
+    }
+  };
+
   return {
     isValid: fnIsValid,
     getDetails: fnGetDetails,
@@ -48,14 +65,12 @@ var FileLoader = (function() {
 
 })();
 
-  var fnSelectFile = function(file) {
-    csvContent = [];
-    selectedFile = file;
-    updateView(file);
-    readFile(file);
-  }
-
-
+var fnSelectFile = function(file) {
+  csvContent = [];
+  selectedFile = file;
+  updateView(file);
+  readFile(file);
+}
 
 function readFile(file) {
   var ext = file.name.split('.').pop().toLowerCase();
@@ -222,27 +237,4 @@ function showLineError(line, message) {
       .addClass('glyphicon glyphicon-exclamation-sign')
     )
     .append(' ' + message + '.');
-}
-
-function showError(errorCode) {
-  var errorPanel = $('#error-panel');
-  var errorMessage = $('#error-message');
-
-  if (errorCode != ErrorCode.NO_ERROR) {
-    errorPanel.removeClass('hidden');
-  } else {
-    errorPanel.addClass('hidden');
-  }
-
-  switch (errorCode) {
-    case ErrorCode.PARSING_ERROR:
-      errorMessage.html(string.parsingError);
-      break;
-    case ErrorCode.FILE_TOO_BIG:
-      errorMessage.html(string.fileTooBig);
-      break;
-    case ErrorCode.TOO_MANY_LINES:
-      errorMessage.html(string.tooManyLines);
-      break;
-  }
 }

@@ -23,6 +23,10 @@ var View = (function() {
       panel: '#headers',
       table: '#headers-table',
       usage: 'select.header-use'
+    },
+    errors: {
+      panel: '#error-panel',
+      message: '#error-message'
     }
   };
 
@@ -127,13 +131,22 @@ var View = (function() {
     $fileModal.modal('show'); // opens the modal itself
   };
 
-  var fnShowError = function(errorMessage) {
-    
+  var fnShowError = function(message) {
+    var $panel = $(selectors.errors.panel);
+    if (!message) {
+      $panel.addClass('hidden');
+      return;
+    }
+    $panel.removeClass('hidden');
+    $(selectors.errors.message).html(message);
   }
 
   /* --- Publicly visible module props --- */
   return {
     init: fnInit,
-    openFileModal: fnOpenFileModal
+    openFileModal: fnOpenFileModal,
+    showError: fnShowError,
+    updateProgress: fnUpdateProgress
   };
+
 })();
