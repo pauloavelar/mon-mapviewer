@@ -13,23 +13,29 @@ var View = (function() {
   // Must be called whenever the page is created
   var fnInit = function() {
     if (hasInitBeenCalled) return;
-    // creating selectors reference
+    // creates selectors reference
     selectors = Utils.selectors;
-    // creating the backdrop modal (by default an uncloseable one)
+    // creates the backdrop modal (by default an uncloseable one)
     $(selectors.fileModal.main).modal({
-      show:false, backdrop: false, keyboard: false
+      show: false, backdrop: 'static', keyboard: false
     });
-    // registering DOM listeners for static elements
+    // registers DOM listeners for static elements
     $(selectors.navBar.btnOpenFile).on('click', fnOpenFileModal);
     $(selectors.fileModal.dropzone)
       .on('dragover dragleave drop', fnHandleDropzone)
       .on('drop', FileLoader.handleFileDrop)
       .on('click', fnClickDropzone);
     $(selectors.fileModal.filePicker).on('change', fnChangeFile);
-    // registering DOM listeners for dynamic elements
+    $(selectors.fileModal.btnLoadMap).on('click', fnClickLoad);
+    // registers DOM listeners for dynamic elements
     $(selectors.headers.table)
       .on('change', selectors.headers.usage, fnHandleHeaderUsage);
-    // showing the modal
+    // sets up Leaflet maps
+    var map = L.map('map').setView([-15, -55], 4);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    // shows the modal
     fnOpenFileModal({firstTime: true});
     // updates the flag to avoid double binding
     hasInitBeenCalled = true;
@@ -44,6 +50,13 @@ var View = (function() {
   var fnClickDropzone = function() {
     $(selectors.fileModal.filePicker).click();
   };
+
+  // parses the interface to get map options
+  var fnClickLoad = function() {
+    fnShowError();
+    var mapOptions = fnPrepareMapOptions();
+    if (mapOptions) MapManager.load(mapOptions);
+ };
 
   // handles drag and drop events in dropzone
   var fnHandleDropzone = function($event) {
@@ -106,9 +119,9 @@ var View = (function() {
     var $modalData = $fileModal.data('bs.modal');
 
     if (options.firstTime === true) {
-      // hides the cancel button, blocks backdrop and kbd escaping
+      // hides the cancel button
       $fileModal.find(selectors.fileModal.btnCancel).hide();
-      $modalData.options.backdrop = false;
+      $modalData.options.backdrop = 'static';
       $modalData.options.keyboard = false;
     } else {
       // default: shows the cancel button, allows backdrop and kbd escaping
@@ -129,17 +142,23 @@ var View = (function() {
     }
     $panel.removeClass('hidden');
     $(selectors.errors.message).html(message);
+    // sets the modal to a position where error is visible
+    $(selectors.fileModal.main).scrollTo($panel, {
+      easing: 'swing', duration: 200, offset: -10
+    });
   }
 
   var fnClearHeaders = function() {
     $(selectors.headers.panel).addClass('hidden');
     $(selectors.headers.table).html('');
+    $(selectors.fileModal.btnLoadMap).addClass('disabled');
   };
 
-  var fnAddHeaderRow = function(headerName) {
+  var fnAddHeaderRow = function(headerId, headerName) {
     var $table = $(selectors.headers.table);
-    var $row = HeaderRowFactory.create(headerName);
+    var $row = HeaderRowFactory.create(headerId, headerName);
     $(selectors.headers.panel).removeClass('hidden');
+    $(selectors.fileModal.btnLoadMap).removeClass('disabled');
     $table.append($row);
   };
 
@@ -149,25 +168,81 @@ var View = (function() {
     var $action = $row.find(selectors.headers.action);
 
     switch($event.val) { // holds the selected option value
-      case 'ignore':
+      case 'ignore': case 'origin': case 'destination':
         $action.html('');
         break;
       case 'filter':
-        var items = FileLoader.getHeaderItems($row.val());
+        var items = FileLoader.getHeaderItems($row.data('id'));
         if (items.length == 0) {
           fnShowRowError($row, Strings.errorNoItems);
           return;
         }
         $action.html(RowFilterFactory.create(items));
         break;
+      case 'lineWidth':
+        var items = FileLoader.getHeaderItems($row.val());
+        if (!Utils.isNumberArray(items)) {
+          fnShowRowError($row, Strings.errorLineWidth);
+          return;
+        }
+        break;
     }
   };
 
   var fnShowRowError = function($row, message) {
-    $row.find(selectors.headers.filter)
+    $row.find(selectors.headers.action)
       .append($('<span>').addClass('glyphicon glyphicon-exclamation-sign'))
       .append(' ' + message + '.');
   }
+
+  var fnPrepareMapOptions = function() {
+    var mapOptions = {};
+    $(selectors.headers.table).find('tr').each(function(index) {
+      var $row = $(this);
+      var usage = $row.find(selectors.headers.usage).val();
+      var error;
+
+      $row.removeClass('danger');
+      switch (usage) {
+        case 'filter':
+          if ($row.find(selectors.headers.filter)) {
+
+          }
+
+          break;
+        case 'origin': case 'destination': // unique
+          // if a previous field has been defined for this
+          if (mapOptions[usage]) error = 'unique';
+          mapOptions[usage] = {
+            id: $row.data('id'),
+            name: $row.data('name')
+          };
+          break;
+        case 'lineWidth': case 'lineColor': // not unique
+          var items = FileLoader.getHeaderItems($row.data('id'));
+          if (!Utils.isNumberArray(items)) error = 'numeric';
+          if (mapOptions[usage]) error = 'unique';
+          mapOptions[usage] = {
+            id: $row.data('id'),
+            name: $row.data('name')
+          };
+          break;
+      }
+      if (error) {
+        fnShowError(Strings.errorsUsage[error][usage]);
+        $row.addClass('danger');
+        return false;
+      }
+    });
+    if (!mapOptions.origin || !mapOptions.destination) {
+      fnShowError(Strings.errorsUsage.empty.location);
+      return;
+    }
+    if (!mapOptions.origin) {
+
+    }
+    return mapOptions;
+  };
 
   /* --- Publicly visible module props --- */
   return {

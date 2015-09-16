@@ -11,6 +11,7 @@ var Utils = (function() {
       fileSize: '#file-size',
       filePicker: '#hidden-file',
       progressBar: '#file-progress div',
+      btnLoadMap: '#btn-modal-load',
       btnCancel: '#btn-modal-cancel'
     },
     headers: {

@@ -22,14 +22,30 @@ var Strings = (function() {
       optUseAsOrigin: 'Usar como origem',
       optUseAsDestination: 'Usar como destino',
       optUseAsLineWidth: 'Usar como espessura da linha',
-      optUseAsMarkerText: 'Usar como texto do marcador',
+      optUseAsLineColor: 'Usar como cor da linha',
       showOnly: 'Selecione itens para serem exibidos',
       // errors
       tooManyLines: 'O arquivo selecionado excede o máximo de 10.000 linhas',
       fileTooBig: 'O arquivo selecionado é muito grande (maior que 5MB)',
       parsingError: 'Não foi possível ler o arquivo selecionado',
       errorNotCsv: 'O arquivo selecionado não é um arquivo CSV',
-      errorNoItems: 'Não há dados neste campo'
+      errorNoItems: 'Não há dados neste campo',
+      errorsUsage: {
+        empty: {
+          filter: 'Filtros não podem estar vazios',
+          location: 'Origem e destino são campos obrigatórios'
+        },
+        unique: {
+          origin: 'Dois campos não podem ser usados como origem ao mesmo tempo',
+          destination: 'Dois campos não podem ser usados como destino ao mesmo tempo',
+          lineWidth: 'Dois campos não podem ser usados como espessura de linha ao mesmo tempo',
+          lineColor: 'Dois campos não podem ser usados como cor de linha ao mesmo tempo'
+        },
+        numeric: {
+          lineWidth: 'Campos de espessura de linha precisam ser numéricos',
+          lineColor: 'Campos de cor de linha precisam ser numéricos'
+        }
+      }
     },
     en: {
       appName: 'Map Viewer',
@@ -51,14 +67,30 @@ var Strings = (function() {
       optUseAsOrigin: 'Use as origin',
       optUseAsDestination: 'Use as destination',
       optUseAsLineWidth: 'Use as line width',
-      optUseAsMarkerText: 'Use as marker text',
+      optUseAsLineColor: 'Use as line color',
       showOnly: 'Select items to be shown',
       // errors
       tooManyLines: 'The selected file exceeds the maximum of 10,000 lines',
       fileTooBig: 'The selected file is too big (over 5MB)',
       parsingError: 'Unable to read the selected file',
       errorNotCsv: 'The selected file is not a CSV file',
-      errorNoItems: 'There is no data in this field'
+      errorNoItems: 'There is no data in this field',
+      errorsUsage: {
+        empty: {
+          filter: 'Filters cannot be empty',
+          location: 'Origin and destination fields are required'
+        },
+        unique: {
+          origin: 'Two fields cannot be used as origin at the same time',
+          destination: 'Two fields cannot be used as destination at the same time',
+          lineWidth: 'Two fields cannot be used as line width at the same time',
+          lineColor: 'Two fields cannot be used as line color at the same time'
+        },
+        numeric: {
+          lineWidth: 'Line width field values must be numeric',
+          lineColor: 'Line color field values must be numeric'
+        }
+      }
     }
   };
 

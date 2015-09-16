@@ -1,12 +1,11 @@
-$(document).ready(function() {
-  var map = L.map('map').setView([-15, -55], 4);
+var MapManager = (function() {
 
-  var markers = {
-    red:  L.icon({ iconUrl: 'marker.png', iconRetinaUrl: 'marker.png' }),
-    blue: L.icon({ iconUrl: 'marker.png', iconRetinaUrl: 'marker.png' })
+  var fnLoad = function(options) {
+    
   };
 
-  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-});
+  return {
+    load: fnLoad
+  };
+
+})();

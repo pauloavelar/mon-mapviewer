@@ -93,24 +93,20 @@ var FileLoader = (function() {
 
   var fnLoadHeaders = function() {
     View.clearHeaders();
-    mCsv[0].forEach(function(header) {
-      if (header.length > 0)
-        View.addHeaderRow(header);
-    });
+    for (var i = 0, len = mCsv[0].length; i < len; i++) {
+      if (mCsv[0][i]) View.addHeaderRow(i, mCsv[0][i]);
+    }
   };
 
-  var fnGetHeaderItems = function(headerName) {
+  var fnGetHeaderItems = function(headerId) {
     if (!Array.isArray(mCsv) || !mCsv[0]) return [];
 
-    var index = mCsv[0].indexOf(headerName);
     var item, items = [];
 
-    if (index != -1) {
-      for (var i = 1, len = mCsv.length; i < len; i++) {
-        item = mCsv[i][index];
-        if (item && item.length > 0 && items.indexOf(item) == -1) {
-          items.push(item); // pushes only unique and defined items
-        }
+    for (var i = 1, len = mCsv.length; i < len; i++) {
+      item = mCsv[i][headerId];
+      if (item && items.indexOf(item) == -1) {
+        items.push(item); // pushes only unique and defined items
       }
     }
     return items.sort();
