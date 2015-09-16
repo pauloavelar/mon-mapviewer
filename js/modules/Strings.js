@@ -24,6 +24,10 @@ var Strings = (function() {
       optUseAsLineWidth: 'Usar como espessura da linha',
       optUseAsLineColor: 'Usar como cor da linha',
       showOnly: 'Selecione itens para serem exibidos',
+      radio: {
+        redToGreen: 'Vermelho &#8594; Verde', // this is an arrow
+        greenToRed: 'Verde &#8594; Vermelho'
+      },
       // errors
       tooManyLines: 'O arquivo selecionado excede o máximo de 10.000 linhas',
       fileTooBig: 'O arquivo selecionado é muito grande (maior que 5MB)',
@@ -69,6 +73,10 @@ var Strings = (function() {
       optUseAsLineWidth: 'Use as line width',
       optUseAsLineColor: 'Use as line color',
       showOnly: 'Select items to be shown',
+      radio: {
+        redToGreen: 'Red &#8594; Green', // this is an arrow
+        greenToRed: 'Green &#8594; Red'
+      },
       // errors
       tooManyLines: 'The selected file exceeds the maximum of 10,000 lines',
       fileTooBig: 'The selected file is too big (over 5MB)',

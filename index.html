@@ -1,10 +1,10 @@
 <!DOCTYPE HTML>
 <html ng-app="MonsantoMapViewer">
-  <head ng-controller="LanguageController">
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ string.appName }}</title>
+    <title>Map Viewer</title>
     <link rel="shortcut icon" href="favicon.ico" />
 
     <!-- CSS rules -->
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="css/custom.css">
 
-    <!-- Javascript scripts -->
+    <!-- Scripts (in plugins: Color, ScrollTo and Number Format)-->
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery.plugins.js"></script>
     <script type="text/javascript" src="js/select2.min.js"></script>
@@ -23,13 +23,13 @@
     <script type="text/javascript" src="js/leaflet.js"></script>
     <script type="text/javascript" src="js/papaparse.min.js"></script>
 
-    <!-- Javascript modules -->
+    <!-- Modules -->
     <script type="text/javascript" src="js/modules/Strings.js"></script>
     <script type="text/javascript" src="js/modules/View.js"></script>
     <script type="text/javascript" src="js/modules/FileLoader.js"></script>
     <script type="text/javascript" src="js/modules/MapManager.js"></script>
     <script type="text/javascript" src="js/modules/Utils.js"></script>
-    <!-- The file below contains HeaderRowFactory and RowFilterFactory -->
+    <!-- Below: HeaderRowFactory, RowFilterFactory and ColorSetupFactory -->
     <script type="text/javascript" src="js/modules/Factories.js"></script>
 
   </head>

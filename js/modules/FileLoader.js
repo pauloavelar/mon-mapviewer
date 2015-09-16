@@ -109,7 +109,8 @@ var FileLoader = (function() {
         items.push(item); // pushes only unique and defined items
       }
     }
-    return items.sort();
+    var isNumeric = Utils.isNumberArray(items);
+    return items.sort(isNumeric ? Utils.compareNumbers : undefined);
   };
 
   return {

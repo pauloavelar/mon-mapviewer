@@ -1,0 +1,37 @@
+{
+  "filters": [
+    {
+      "field": {
+        "id": 6,
+        "name": "cultura"
+      },
+      "accept": [ "Sorgo" ]
+    },
+    {
+      "field": {
+        "id": 9,
+        "name": "hibrido"
+      },
+      "accept": [ "AG1040", "AG1051", "AG4051PRO" ]
+    }
+  ],
+  "origin": {
+    "id": 7,
+    "name": "centro_origem"
+  },
+  "destination": {
+    "id": 8,
+    "name": "centro_destino"
+  },
+  "lineWidth": {
+    "id": 14,
+    "name": "qtde"
+  },
+  "lineColor": {
+    "field": {
+      "id": 17,
+      "name": "custo"
+    },
+    "pattern": "redToGreen"
+  }
+}

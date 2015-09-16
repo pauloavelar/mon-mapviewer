@@ -96,3 +96,44 @@ var RowFilterFactory = (function() {
   };
 
 })();
+
+
+var ColorSetupFactory = (function() {
+
+  var mTemplate;
+
+  var fnGetRadioOptions = function() {
+    var options = [
+      { value: 'greenToRed', label: Strings.radio.greenToRed },
+      { value: 'redToGreen', label: Strings.radio.redToGreen }
+    ];
+    return options;
+  };
+
+  var fnCreateTemplate = function() {
+    if (mTemplate) return;
+    mTemplate = $('<div>').addClass('radio');
+
+    fnGetRadioOptions().forEach(function(opt) {
+      mTemplate.append($('<label>')
+        .addClass('radio-inline')
+        .append($('<input>')
+          .attr('type', 'radio')
+          .attr('name', 'colorRadio')
+          .val(opt.value)
+        )
+        .append(opt.label)
+      );
+    });
+  };
+
+  var fnCreate = function() {
+    if (!mTemplate) fnCreateTemplate();
+    return mTemplate.clone();
+  };
+
+  return {
+    create: fnCreate
+  };
+
+})();

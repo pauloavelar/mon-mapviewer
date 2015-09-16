@@ -35,6 +35,7 @@ var View = (function() {
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+    MapManager.bind(map);
     // shows the modal
     fnOpenFileModal({firstTime: true});
     // updates the flag to avoid double binding
@@ -66,6 +67,7 @@ var View = (function() {
       FileLoader.select(file);
     }
     fnUpdateDropzone($event.type, file);
+    fnShowError();
     return false; // calls stopPropagation() and preventDefault()
   };
 
@@ -179,11 +181,14 @@ var View = (function() {
         }
         $action.html(RowFilterFactory.create(items));
         break;
-      case 'lineWidth':
-        var items = FileLoader.getHeaderItems($row.val());
+      case 'lineWidth': case 'lineColor':
+        var items = FileLoader.getHeaderItems($row.data('id'));
         if (!Utils.isNumberArray(items)) {
-          fnShowRowError($row, Strings.errorLineWidth);
+          fnShowRowError($row, Strings.errorsUsage.numeric[$event.val]);
           return;
+        }
+        if ($event.val == 'lineColor') {
+          $action.append(ColorSetupFactory.create());
         }
         break;
     }
@@ -191,55 +196,69 @@ var View = (function() {
 
   var fnShowRowError = function($row, message) {
     $row.find(selectors.headers.action)
-      .append($('<span>').addClass('glyphicon glyphicon-exclamation-sign'))
+      .html($('<span>').addClass('glyphicon glyphicon-exclamation-sign'))
       .append(' ' + message + '.');
-  }
+  };
 
   var fnPrepareMapOptions = function() {
-    var mapOptions = {};
+    var mapOptions = { filters: [] };
+    var anyError = false;
+
     $(selectors.headers.table).find('tr').each(function(index) {
+      var rowError;
       var $row = $(this);
       var usage = $row.find(selectors.headers.usage).val();
-      var error;
+      var rowData = { id: $row.data('id'), name: $row.data('name') };
 
-      $row.removeClass('danger');
       switch (usage) {
         case 'filter':
-          if ($row.find(selectors.headers.filter)) {
-
+          var values = $row.find(selectors.headers.filter).val();
+          if (!values || values.length == 0) {
+            rowError = 'empty';
+          } else {
+            mapOptions.filters.push({ field: rowData, accept: values });
           }
-
           break;
-        case 'origin': case 'destination': // unique
-          // if a previous field has been defined for this
-          if (mapOptions[usage]) error = 'unique';
-          mapOptions[usage] = {
-            id: $row.data('id'),
-            name: $row.data('name')
-          };
+        case 'origin': case 'destination':
+          if (mapOptions[usage]) { // check if unique
+            rowError = 'unique';
+          } else {
+            mapOptions[usage] = rowData;
+          }
           break;
-        case 'lineWidth': case 'lineColor': // not unique
-          var items = FileLoader.getHeaderItems($row.data('id'));
-          if (!Utils.isNumberArray(items)) error = 'numeric';
-          if (mapOptions[usage]) error = 'unique';
-          mapOptions[usage] = {
-            id: $row.data('id'),
-            name: $row.data('name')
-          };
+        case 'lineWidth':
+          var items = FileLoader.getHeaderItems(rowData.id);
+          if (!Utils.isNumberArray(items)) { // check if numeric
+            rowError = 'numeric';
+          } else if (mapOptions[usage]) {   // check if unique
+            rowError = 'unique';
+          } else {
+              mapOptions[usage] = rowData;
+          }
+          break;
+        case 'lineColor':
+          var items = FileLoader.getHeaderItems(rowData.id);
+          if (!Utils.isNumberArray(items)) { // check if numeric
+            rowError = 'numeric';
+          } else if (mapOptions[usage]) {   // check if unique
+            rowError = 'unique';
+          } else {
+            var radio = $row.find(selectors.headers.selectedRadio);
+            mapOptions[usage] = { field: rowData, pattern: radio.val() };
+          }
           break;
       }
-      if (error) {
-        fnShowError(Strings.errorsUsage[error][usage]);
+      if (rowError) {
+        fnShowError(Strings.errorsUsage[rowError][usage]);
         $row.addClass('danger');
+        anyError = true;
         return false;
       }
     });
-    if (!mapOptions.origin || !mapOptions.destination) {
+    // checks if no error occured, but still origin or destination is missing
+    if (!anyError && (!mapOptions.origin || !mapOptions.destination)) {
       fnShowError(Strings.errorsUsage.empty.location);
       return;
-    }
-    if (!mapOptions.origin) {
-
     }
     return mapOptions;
   };
