@@ -123,7 +123,7 @@ var MapManager = (function() {
 
         if (minW > 0 || item.width == 0) return true; // calls next
         fnAddLine({ points: [
-            [ start.lat, start.long ],
+            [ start.lat - 0.0005, start.long - 0.0005],
             [ end.lat + 0.00005, end.long + 0.00005 ]
           ], // small fix in end coordinates to avoid line overlapping
           width: Utils.getPercent(item.width, minW, maxW),
@@ -163,14 +163,14 @@ var MapManager = (function() {
    * }
    */
   var fnAddLine = function(details) {
-    var calculatedWidth = details.width * 7;
-    if (calculatedWidth < 1)
-      calculatedWidth = 1;
-    else if (calculatedWidth > 7)
-      calculatedWidth = 7;
+    var calculatedWidth = details.width * 8 + 2;
+    if (calculatedWidth < 2)
+      calculatedWidth = 2;
+    else if (calculatedWidth > 10)
+      calculatedWidth = 10;
     var polyline = L.polyline(details.points, {
       color: details.color, fill: false, lineCap: 'round',
-      weight: calculatedWidth // max: 7px
+      weight: calculatedWidth
     }).addTo(mMap);
     if (details.popup) polyline.bindPopup(details.popup);
   };
