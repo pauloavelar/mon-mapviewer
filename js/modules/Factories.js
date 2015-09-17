@@ -125,6 +125,8 @@ var ColorSetupFactory = (function() {
         .append(opt.label)
       );
     });
+    mTemplate.find(Utils.selectors.headers.firstRadio)
+      .attr('checked', 'checked');
   };
 
   var fnCreate = function() {

@@ -22,6 +22,7 @@ var Utils = (function() {
       usage: 'select.header-use',
       action: 'td.header-action',
       filter: 'select.header-filter',
+      firstRadio: 'input[type=radio]:first',
       selectedRadio: 'input[name=colorRadio]:checked'
     },
     errors: {
