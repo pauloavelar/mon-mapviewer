@@ -30,23 +30,37 @@ var Utils = (function() {
   });
 
   var fnGetColor = function(opt) {
-    if (opt && opt.mode &&) {
+    if (opt && opt.mode) {
       if (!opt.val) opt.val = 0;
       if (!opt.min) opt.min = 0;
       if (!opt.max) opt.max = 100;
 
-      var start = 200 * (opt.val - opt.min) / (opt.max - opt.min);
-      var end   = 200 * (opt.val - opt.min) / (opt.max - opt.min);
+      var color = 200 * fnGetPercent(opt.val, opt.min, opt.max);
 
       switch (opt.mode) {
         case 'redToGreen':
-          return fnRgbToHex(200 * (), 200 - , 0);
+          return fnRgbToHex(200 - color, color, 0);
         case 'greenToRed':
-          return fnRgbToHex(200, 200, 0);
+          return fnRgbToHex(color, 200 - color, 0);
       }
     }
     return '';
   };
+
+  var fnGetPercent = function(value, min, max) {
+    if (!min && !max) return 0;
+    if (!min) min = 0;
+    if (!max) max = 0;
+    if (!value) value = 0;
+
+    if (min > max) {
+      var aux = max;
+      max = min;
+      min = aux;
+    }
+
+    return (value - min) / (max - min);
+ };
 
   var fnIsNumberArray = function(array) {
     if (!array || !Array.isArray(array)) return false;
@@ -133,7 +147,8 @@ var Utils = (function() {
     rgbToHex: fnRgbToHex,
     iterate2D: fnIterate2D,
     getAllProperties: fnGetAllProperties,
-    makeUniqueArray: fnMakeUniqueArray
+    makeUniqueArray: fnMakeUniqueArray,
+    getPercent: fnGetPercent
   };
 
 })();

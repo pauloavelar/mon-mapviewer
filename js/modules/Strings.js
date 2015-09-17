@@ -49,6 +49,10 @@ var Strings = (function() {
           lineWidth: 'Campos de espessura de linha precisam ser numéricos',
           lineColor: 'Campos de cor de linha precisam ser numéricos'
         }
+      },
+      map: {
+        lineWidthLabel: 'Espessura:'
+        lineColorLabel: 'Cor:'
       }
     },
     en: {
@@ -98,6 +102,10 @@ var Strings = (function() {
           lineWidth: 'Line width field values must be numeric',
           lineColor: 'Line color field values must be numeric'
         }
+      },
+      map: {
+        lineWidthLabel: 'Weight:'
+        lineColorLabel: 'Color:'
       }
     }
   };

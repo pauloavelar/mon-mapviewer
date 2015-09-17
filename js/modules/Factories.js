@@ -137,3 +137,64 @@ var ColorSetupFactory = (function() {
   };
 
 })();
+
+
+var PopupTextFactory = (function() {
+
+  var mTemplate;
+
+  var fnCreateTemplate = function() {
+    if (mTemplate) return;
+    mTemplate = $('<div>')
+      .append($('<span>')
+        .addClass('width-label')
+        .append(Strings.map.lineWidthLabel)
+      )
+      .append('<br>')
+      .append($('<span>')
+        .addClass('width-text')
+      )
+      .append('<br>').append('<br>')
+      .append($('<span>')
+        .addClass('color-label')
+        .append(Strings.map.lineColorLabel)
+      )
+      .append('<br>')
+      .append($('<span>')
+        .addClass('color-text')
+      )
+    );
+  };
+
+  var fnFormatLabel = function(info) {
+    return info.field + ' ' + Strings.map.label.from +
+           info.from + ' ' + Strings.map.label.to + ': ' +
+           $.number(info.value, 2);
+  };
+
+  // item; info: origin, destination, widthField, colorField
+  var fnCreate = function(item, info) {
+    if (!mTemplate) fnCreateTemplate();
+
+    var $instance = mTemplate.clone();
+
+    var widthLabel = fnFormatLabel({
+      field: info.widthField, value: item.width,
+      from: info.origin, to: info.destination
+    });
+    var colorLabel = fnFormatLabel({
+      field: info.colorField, value: item.color,
+      from: info.origin, to: info.destination
+    });
+
+    $instance.find(Utils.selectors.map.widthLabel).html(widthLabel);
+    $instance.find(Utils.selectors.map.colorLabel).html(colorLabel);
+
+    return $instance;
+  };
+
+  return {
+    create: fnCreate
+  };
+
+})();

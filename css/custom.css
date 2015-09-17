@@ -41,6 +41,6 @@ body { padding-top: 50px; }
   background-color: #ececec !important;
 }
 
-#headers .header-name {
+#headers .header-name, .width-label, .color-label {
   font-weight: bold;
 }

@@ -11,6 +11,7 @@ var MapManager = (function() {
   });
 
   var icons = {
+    default: new IconTemplate({ iconUrl: 'img/marker-default.png' }),
     dc: new IconTemplate({ iconUrl: 'img/marker-dc.png' }),
     plant: new IconTemplate({ iconUrl: 'img/marker-plant.png' }),
     both: new IconTemplate({ iconUrl: 'img/marker-both.png' }),
@@ -30,12 +31,12 @@ var MapManager = (function() {
     // call plotMap
   };
 
-  var fnPlot = function(lines) {
+  var fnPlot = function(matrix, mapOptions) {
     var minW, maxW, minC, maxC;
     var currW, currC;
 
     // gets minimum and maximum values for width and color
-    Utils.iterate2D(lines, function(item, outerProp, innerProp) {
+    Utils.iterate2D(matrix, function(item, outerProp, innerProp) {
       if (!minW || minW > item.width) minW = item.width;
       if (!maxW || maxW < item.width) maxW = item.width;
 
@@ -43,9 +44,11 @@ var MapManager = (function() {
       if (!maxC || maxC < item.color) maxC = item.color;
     });
 
-    var props = Utils.getAllProperties(lines, 1);
+    // gets all locations in the matrix
+    var props = Utils.getAllProperties(matrix, 1);
     var locations = Utils.makeUniqueArray(props);
 
+    // adds all the locations in the matrix
     locations.forEach(function(id) {
       var location = Locations.findById(id);
       fnAddMarker({
@@ -56,27 +59,69 @@ var MapManager = (function() {
       });
     });
 
-    // get min and max values for width and color
-    // iterate matrix and plot each line
-    // iterate markers and plot each marker
+    // iterates the matrix and plot each line
+    Utils.iterate2D(matrix, function(item, oProp, iProp) {
+      var start = Locations.findById(oProp);
+      var end   = Locations.findById(iProp);
+
+      if (start && end) {
+        var color = Utils.getColor({
+          mode: colorMode, min: minC, max: maxC, val: item.color
+        });
+        var popup = PopupTextFactory.create(item, {
+          origin: , destination: ,
+          widthField: ,
+          colorField:
+        });
+
+        fnAddLine({ points: [
+            [ start.latitude, start.longitude ],
+            [ end.latitude, end.longitude ]
+          ],
+          width: Utils.getPercent(item.width, minW, maxW),
+          color: color,
+          popup: popup });
+      }
+    });
   };
 
+  /* Adds a marker to the map
+   * params: details = {
+   *   latitude, longitude, kind, title
+   * }
+   */
   var fnAddMarker = function(details) {
-    L.marker([details.latitude, details.longitude], {
-      icon: icons[details.kind],
+    var marker = L.marker([details.latitude, details.longitude], {
+      icon: icons[details.kind] || icons.default,
       title: details.title
-    }).addTo(mMap).bindPopup(details.title);
+    }).addTo(mMap);
+    if (details.title) marker.bindPopup(details.title);
   };
 
+  /* Adds a marker to the map
+   * params: details = {
+   *   points: [ { latitude, longitude } ], color, width, popup
+   * }
+   */
   var fnAddLine = function(details) {
-    L.
+    var calculatedWidth = details.width * 7;
+    if (calculatedWidth < 1)
+      calculatedWidth = 1;
+    else if (calculatedWidth > 7)
+      calculatedWidth = 7;
+    var polyline = L.polyline(details.points, {
+      color: details.color, fill: false, lineCap: 'round',
+      weight: calculatedWidth // max: 7px
+    }).addTo(mMap);
+    if (details.popup) polyline.bindPopup(details.popup);
   };
 
   return {
     bind: fnBind,
     load: fnLoad,
     plot: fnPlot,
-    addMarker: fnAddMarker
+    addMarker: fnAddMarker,
+    addLine: fnAddLine
   };
 
 })();
