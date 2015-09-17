@@ -29,11 +29,18 @@
     <script type="text/javascript" src="js/modules/FileLoader.js"></script>
     <script type="text/javascript" src="js/modules/MapManager.js"></script>
     <script type="text/javascript" src="js/modules/Utils.js"></script>
+    <script type="text/javascript" src="js/modules/Locations.js"></script>
     <!-- Below: HeaderRowFactory, RowFilterFactory and ColorSetupFactory -->
     <script type="text/javascript" src="js/modules/Factories.js"></script>
 
   </head>
   <body onload="View.init()" ng-controller="LanguageController">
+
+    <div id="loading" class="text-center">
+      <div>
+        <div class="cssload-loader"></div>
+      </div>
+    </div>
 
     <div id="file-modal" class="modal fade" tabindex="-1">
       <div class="modal-dialog modal-lg">
@@ -97,7 +104,7 @@
       </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <nav class="navbar navbar-default navbar-fixed-top">
+    <nav id="navbar" class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed"
@@ -121,6 +128,22 @@
     </nav>
 
     <div id="main">
+      <div id="legend" class="panel panel-default">
+        <div class="panel-heading">
+          {{ string.legend.title }}
+        </div>
+        <div class="panel-body">
+          <div class="vert-align">
+            <img class="legend-icon" src="img/marker-dc.png"> {{ string.legend.dc }}
+          </div>
+          <div class="vert-align">
+            <img class="legend-icon" src="img/marker-plant.png"> {{ string.legend.plant }}
+          </div>
+          <div class="vert-align">
+            <img class="legend-icon" src="img/marker-both.png"> {{ string.legend.both }}
+          </div>
+        </div>
+      </div>
       <div id="map"> </div>
     </div>
 

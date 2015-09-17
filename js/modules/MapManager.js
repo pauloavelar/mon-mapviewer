@@ -17,12 +17,15 @@ var MapManager = (function() {
     both: new IconTemplate({ iconUrl: 'img/marker-both.png' }),
   };
 
-  var fnBind = function(map) {
-    mMap = map;
-  };
+  var fnInit = function(map) {
+    mMap = L.map('map').setView([-15, -55], 4);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+    }).addTo(mMap);
+  }
 
   var fnLoad = function(options) {
-    var matrix;
+    var matrix = {};
 
     // fetches locations
     var locations = Locations.getAll();
@@ -30,7 +33,9 @@ var MapManager = (function() {
 
     // creates lines matrix
     for (var i = 0; i < len; i++) {
+      matrix[locations[i].id] = {};
       for (var j = 0; j < len; j++) {
+        matrix[locations[i].id][locations[j].id] = {};
         matrix[locations[i].id][locations[j].id].width = 0;
         matrix[locations[i].id][locations[j].id].color = 0;
       }
@@ -40,17 +45,39 @@ var MapManager = (function() {
     var csv = FileLoader.getCsvContents();
     if (!csv || !Array.isArray(csv)) return;
 
+    var widthId = (options.lineWidth ? options.lineWidth.id : false);
+    var colorId = (options.lineColor ? options.lineColor.field.id : false);
+    var originId = options.origin.id;
+    var destinationId = options.destination.id;
+
     // iterates the whole csv, except headers
     for (var i = 1, len = csv.length; i < len; i++) {
-      // check filters
+      // check filters, if failed then go to next row
+      if (!fnTestFilters(csv[i], options.filters)) continue;
       // set width and color in matrix
 
+      var row  = csv[i];
+      try {
+        var cell = matrix[row[originId]][row[destinationId]];
+      } catch(err) {
+        continue;
+      }
+      if (widthId) {
+        cell.width += parseFloat(row[widthId]);
+      } else {
+        cell.width = 1;
+      }
+      if (colorId) {
+        cell.color += parseFloat(row[colorId]);
+      } else {
+        cell.color = 1;
+      }
     }
     // calls plotMap
-    plotMap(matrix, mapOptions);
+    fnPlot(matrix, options);
   };
 
-  var fnPlot = function(matrix, mapOptions) {
+  var fnPlot = function(matrix, options) {
     var minW, maxW, minC, maxC;
     var currW, currC;
 
@@ -85,24 +112,36 @@ var MapManager = (function() {
 
       if (start && end) {
         var color = Utils.getColor({
-          mode: colorMode, min: minC, max: maxC, val: item.color
+          mode: (options.lineColor ? options.lineColor.pattern : 'gray'),
+          min: minC, max: maxC, val: item.color
         });
         var popup = PopupTextFactory.create(item, {
           origin: start.name, destination: end.name,
-          widthField: mapOptions.lineWidth.name,
-          colorField: mapOptions.lineColor.name
+          widthField: (options.lineWidth ? options.lineWidth.name : null),
+          colorField: (options.lineColor ? options.lineColor.field.name : null)
         });
 
+        if (minW > 0 || item.width == 0) return true; // calls next
         fnAddLine({ points: [
-            [ start.latitude, start.longitude ],
-            [ end.latitude, end.longitude ]
-          ],
+            [ start.lat, start.long ],
+            [ end.lat + 0.00005, end.long + 0.00005 ]
+          ], // small fix in end coordinates to avoid line overlapping
           width: Utils.getPercent(item.width, minW, maxW),
           color: color,
           popup: popup
         });
       }
     });
+  };
+
+  var fnTestFilters = function(row, filters) {
+    for (var i = 0, len = filters.length; i < len; i++) {
+      var field  = filters[i].field;
+      var accept = filters[i].accept;
+
+      if (accept.indexOf(row[field.id]) == -1) return false;
+    }
+    return true;
   };
 
   /* Adds a marker to the map
@@ -137,7 +176,7 @@ var MapManager = (function() {
   };
 
   return {
-    bind: fnBind,
+    init: fnInit,
     load: fnLoad,
     plot: fnPlot,
     addMarker: fnAddMarker,

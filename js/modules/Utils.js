@@ -4,6 +4,7 @@ var Utils = (function() {
     navBar: {
       btnOpenFile: '#btn-open-file'
     },
+    loading: '#loading',
     fileModal: {
       main: '#file-modal',
       dropzone: '#dropzone',
@@ -28,8 +29,8 @@ var Utils = (function() {
       message: '#error-message'
     },
     map: {
-      widthLabel: '.width-label',
-      colorLabel: '.color-label'
+      widthText: '.width-text',
+      colorText: '.color-text'
     }
   });
 
@@ -42,6 +43,8 @@ var Utils = (function() {
       var color = 200 * fnGetPercent(opt.val, opt.min, opt.max);
 
       switch (opt.mode) {
+        case 'gray':
+          return '#888';
         case 'redToGreen':
           return fnRgbToHex(200 - color, color, 0);
         case 'greenToRed':
@@ -56,6 +59,8 @@ var Utils = (function() {
     if (!min) min = 0;
     if (!max) max = 0;
     if (!value) value = 0;
+
+    if (min == max) return 0.2;
 
     if (min > max) {
       var aux = max;
@@ -106,17 +111,17 @@ var Utils = (function() {
     for (var oProp in array2D) {
       if (!array2D.hasOwnProperty(oProp)) continue;
 
-      for (var iProp in array2D[outerP]) {
+      for (var iProp in array2D[oProp]) {
         if (!array2D[oProp].hasOwnProperty(iProp)) continue;
 
-        if (!fn(lines[oProp][iProp], oProp, iProp)) return;
+        if (fn(array2D[oProp][iProp], oProp, iProp) === false) return;
       }
     }
   };
 
   // list all properties of an object until nth level
   // obj.prop = level 0; obj.prop.prop = level 1; and so on
-  var fnGetAllProperties = function(obj, deepestLevel, currentLevel) {
+  var fnGetAllProps = function(obj, deepestLevel, currentLevel) {
     var props = [];
     if (!currentLevel) currentLevel = 0;
 
@@ -125,7 +130,7 @@ var Utils = (function() {
         props.push(prop);
         if (currentLevel < deepestLevel) {
           if (typeof obj[prop] == 'object')
-            fnGetAllProperties(obj, deepestLevel, currentLevel + 1);
+            props = props.concat(fnGetAllProps(obj, deepestLevel, currentLevel + 1));
         }
       }
     }
@@ -134,11 +139,11 @@ var Utils = (function() {
   };
 
   var fnMakeUniqueArray = function(array) {
-    if (!Array.isArray(a1)) return array;
+    if (!Array.isArray(array)) return array;
 
-    var uniqueArray;
+    var uniqueArray = [];
     array.forEach(function(item) {
-      if (array.indexOf(item) == -1) uniqueArray.push(item);
+      if (uniqueArray.indexOf(item) == -1) uniqueArray.push(item);
     });
     return uniqueArray;
   }
@@ -150,7 +155,7 @@ var Utils = (function() {
     getColor: fnGetColor,
     rgbToHex: fnRgbToHex,
     iterate2D: fnIterate2D,
-    getAllProperties: fnGetAllProperties,
+    getAllProperties: fnGetAllProps,
     makeUniqueArray: fnMakeUniqueArray,
     getPercent: fnGetPercent
   };

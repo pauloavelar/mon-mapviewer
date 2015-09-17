@@ -121,15 +121,8 @@ var FileLoader = (function() {
     isValid: fnIsValid,
     getDetails: fnGetDetails,
     select: fnSelect,
-    getHeaderItems: fnGetHeaderItems
+    getHeaderItems: fnGetHeaderItems,
+    getCsvContents: fnGetCsvContents
   };
 
 })();
-
-function clickLoadMap() {
-  var mapSetup = {
-    filters: [],
-    origin: getOrigin(),
-    destination: getDestination()
-  };
-}

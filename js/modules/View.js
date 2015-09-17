@@ -31,13 +31,11 @@ var View = (function() {
     $(selectors.headers.table)
       .on('change', selectors.headers.usage, fnHandleHeaderUsage);
     // sets up Leaflet maps
-    var map = L.map('map').setView([-15, -55], 4);
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-    MapManager.bind(map);
-    // shows the modal
-    fnOpenFileModal({firstTime: true});
+    MapManager.init();
+    // hides the loading div
+    $(selectors.loading).fadeOut();
+    // shows the modal with a half-second delay
+    window.setTimeout(fnOpenFileModal, 500, {firstTime: true});
     // updates the flag to avoid double binding
     hasInitBeenCalled = true;
   };
@@ -53,7 +51,8 @@ var View = (function() {
   };
 
   // parses the interface to get map options
-  var fnClickLoad = function() {
+  var fnClickLoad = function($event) {
+    if ($($event.target).hasClass('disabled')) return;
     fnShowError();
     var mapOptions = fnPrepareMapOptions();
     if (mapOptions) {

@@ -54,7 +54,14 @@ var Strings = (function() {
         lineWidthLabel: 'Espessura:',
         lineColorLabel: 'Cor:',
         from: 'de',
-        to: 'para'
+        to: 'para',
+        nothing: 'Nada'
+      },
+      legend: {
+        title: 'LEGENDA',
+        dc: 'Centro de Distribuição',
+        plant: 'Planta de Produção',
+        both: 'Ambos os perfis'
       }
     },
     en: {
@@ -76,7 +83,7 @@ var Strings = (function() {
       optUseAsFilter: 'Use as filter',
       optUseAsOrigin: 'Use as origin',
       optUseAsDestination: 'Use as destination',
-      optUseAsLineWidth: 'Use as line width',
+      optUseAsLineWidth: 'Use as line weight',
       optUseAsLineColor: 'Use as line color',
       showOnly: 'Select items to be shown',
       radio: {
@@ -109,7 +116,14 @@ var Strings = (function() {
         lineWidthLabel: 'Weight:',
         lineColorLabel: 'Color:',
         from: 'from',
-        to: 'to'
+        to: 'to',
+        nothing: 'Nothing'
+      },
+      legend: {
+        title: 'LEGEND',
+        dc: 'Distribution Center',
+        plant: 'Production Plant',
+        both: 'Both roles'
       }
     }
   };

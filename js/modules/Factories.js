@@ -162,14 +162,14 @@ var PopupTextFactory = (function() {
       .append('<br>')
       .append($('<span>')
         .addClass('color-text')
-      )
-    );
+      );
   };
 
   var fnFormatLabel = function(info) {
-    return info.field + ' ' + Strings.map.from +
-           info.from + ' ' + Strings.map.to + ': ' +
-           $.number(info.value, 2);
+    if (!info.field) return Strings.map.nothing;
+    return info.field + ' ' + Strings.map.from + ' ' +
+           info.from + ' ' + Strings.map.to + ' ' +
+           info.to + ': ' + $.number(info.value, 2);
   };
 
   // item; info: origin, destination, widthField, colorField
@@ -178,19 +178,19 @@ var PopupTextFactory = (function() {
 
     var $instance = mTemplate.clone();
 
-    var widthLabel = fnFormatLabel({
+    var widthText = fnFormatLabel({
       field: info.widthField, value: item.width,
       from: info.origin, to: info.destination
     });
-    var colorLabel = fnFormatLabel({
+    var colorText = fnFormatLabel({
       field: info.colorField, value: item.color,
       from: info.origin, to: info.destination
     });
 
-    $instance.find(Utils.selectors.map.widthLabel).html(widthLabel);
-    $instance.find(Utils.selectors.map.colorLabel).html(colorLabel);
+    $instance.find(Utils.selectors.map.widthText).html(widthText);
+    $instance.find(Utils.selectors.map.colorText).html(colorText);
 
-    return $instance;
+    return $instance.html(); // only the html is needed
   };
 
   return {
