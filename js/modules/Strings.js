@@ -51,8 +51,10 @@ var Strings = (function() {
         }
       },
       map: {
-        lineWidthLabel: 'Espessura:'
-        lineColorLabel: 'Cor:'
+        lineWidthLabel: 'Espessura:',
+        lineColorLabel: 'Cor:',
+        from: 'de',
+        to: 'para'
       }
     },
     en: {
@@ -104,8 +106,10 @@ var Strings = (function() {
         }
       },
       map: {
-        lineWidthLabel: 'Weight:'
-        lineColorLabel: 'Color:'
+        lineWidthLabel: 'Weight:',
+        lineColorLabel: 'Color:',
+        from: 'from',
+        to: 'to'
       }
     }
   };

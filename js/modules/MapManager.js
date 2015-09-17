@@ -22,13 +22,32 @@ var MapManager = (function() {
   };
 
   var fnLoad = function(options) {
-    // fetches locations
+    var matrix;
 
-    // create line matrix
-    // iterate csv
+    // fetches locations
+    var locations = Locations.getAll();
+    var len = locations.length;
+
+    // creates lines matrix
+    for (var i = 0; i < len; i++) {
+      for (var j = 0; j < len; j++) {
+        matrix[locations[i].id][locations[j].id].width = 0;
+        matrix[locations[i].id][locations[j].id].color = 0;
+      }
+    }
+
+    // gets contents from FileLoader
+    var csv = FileLoader.getCsvContents();
+    if (!csv || !Array.isArray(csv)) return;
+
+    // iterates the whole csv, except headers
+    for (var i = 1, len = csv.length; i < len; i++) {
       // check filters
       // set width and color in matrix
-    // call plotMap
+
+    }
+    // calls plotMap
+    plotMap(matrix, mapOptions);
   };
 
   var fnPlot = function(matrix, mapOptions) {
@@ -69,9 +88,9 @@ var MapManager = (function() {
           mode: colorMode, min: minC, max: maxC, val: item.color
         });
         var popup = PopupTextFactory.create(item, {
-          origin: , destination: ,
-          widthField: ,
-          colorField:
+          origin: start.name, destination: end.name,
+          widthField: mapOptions.lineWidth.name,
+          colorField: mapOptions.lineColor.name
         });
 
         fnAddLine({ points: [
@@ -80,7 +99,8 @@ var MapManager = (function() {
           ],
           width: Utils.getPercent(item.width, minW, maxW),
           color: color,
-          popup: popup });
+          popup: popup
+        });
       }
     });
   };

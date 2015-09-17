@@ -18,6 +18,10 @@ var FileLoader = (function() {
     return file && file.name.split('.').pop().toLowerCase().match('csv');
   };
 
+  var fnGetCsvContents = function() {
+    return mCsv;
+  }
+
   // sets selectedFile to the file reference
   var fnSelect = function(file) {
     mSelectedFile = file;

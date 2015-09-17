@@ -167,8 +167,8 @@ var PopupTextFactory = (function() {
   };
 
   var fnFormatLabel = function(info) {
-    return info.field + ' ' + Strings.map.label.from +
-           info.from + ' ' + Strings.map.label.to + ': ' +
+    return info.field + ' ' + Strings.map.from +
+           info.from + ' ' + Strings.map.to + ': ' +
            $.number(info.value, 2);
   };
 

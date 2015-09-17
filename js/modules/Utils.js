@@ -26,6 +26,10 @@ var Utils = (function() {
     errors: {
       panel: '#error-panel',
       message: '#error-message'
+    },
+    map: {
+      widthLabel: '.width-label',
+      colorLabel: '.color-label'
     }
   });
 

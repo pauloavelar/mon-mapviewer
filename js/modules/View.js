@@ -56,7 +56,10 @@ var View = (function() {
   var fnClickLoad = function() {
     fnShowError();
     var mapOptions = fnPrepareMapOptions();
-    if (mapOptions) MapManager.load(mapOptions);
+    if (mapOptions) {
+      MapManager.load(mapOptions);
+      fnHideFileModal();
+    }
  };
 
   // handles drag and drop events in dropzone
@@ -134,6 +137,10 @@ var View = (function() {
 
     $modalData.escape(); // apparently necessary to update the data
     $fileModal.modal('show'); // opens the modal itself
+  };
+
+  var fnHideFileModal = function() {
+    $(selectors.fileModal.main).modal('hide');
   };
 
   var fnShowError = function(message) {
@@ -267,6 +274,7 @@ var View = (function() {
   return {
     init: fnInit,
     openFileModal: fnOpenFileModal,
+    hideFileModal: fnHideFileModal,
     showError: fnShowError,
     updateProgress: fnUpdateProgress,
     clearHeaders: fnClearHeaders,
